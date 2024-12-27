@@ -12,7 +12,7 @@ jobs:
     
     # Add concurrency to prevent multiple workflows running simultaneously
     concurrency:
-      group: ${{ github.workflow }}-${{ github.ref }}-${{ format('{0:yyyy-MM-dd}', timestamp()) }}
+      group: ${{ github.workflow }}-${{ github.ref }}-${{ github.run_id }}
       cancel-in-progress: true
     
     steps:
