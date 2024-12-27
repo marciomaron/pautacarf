@@ -239,8 +239,12 @@ log_execution.start_time = time.time()
 
 def main():
     try:
+        # Add this line at the start of main()
+        logging.info("Starting DOU scraper...")
+        
         # Initialize database
         init_db()
+        logging.info("Database initialized")
         
         # Get search terms from Excel and normalize them
         search_terms = get_excel_data()
