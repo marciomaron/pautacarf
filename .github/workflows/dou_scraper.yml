@@ -1,0 +1,70 @@
+name: DOU Scraper
+
+on:
+  schedule:
+    # Run every hour from 1 AM to 9 AM BRT (4:00-12:00 UTC)
+    - cron: '0 4-12 * * *'
+  workflow_dispatch:  # Allows manual triggering
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    
+    # Add concurrency to prevent multiple workflows running simultaneously
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}-${{ format('{0:yyyy-MM-dd}', timestamp()) }}
+      cancel-in-progress: true
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python 3.8
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.8'
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        
+    - name: Create log directory
+      run: mkdir -p log
+        
+    - name: Initialize database
+      run: python -c "from dou_scraper import init_db; init_db()"
+        
+    - name: Run DOU scraper
+      run: python dou_scraper.py
+
+    - name: Upload logs and database
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: execution-logs-${{ github.run_number }}
+        path: |
+          log/
+          dou_scraper.db
+
+  deploy-dashboard:
+    needs: scrape
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Download artifacts
+      uses: actions/download-artifact@v3
+      with:
+        name: execution-logs-${{ github.run_number }}
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.8'
+        
+    - name: Install dependencies
+      run: pip install -r requirements.txt
+        
+    - name: Run web interface
+      run: python run_web.py 
