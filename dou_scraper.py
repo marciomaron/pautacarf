@@ -6,8 +6,6 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from datetime import datetime
 import sys
-import requests
-from O365 import Account
 from typing import List, Dict, Any
 import sqlite3
 import time
@@ -17,7 +15,6 @@ import re
 from scrapy.crawler import CrawlerRunner
 from twisted.internet import reactor
 from crawlDou import crawlDou
-from writeResult import writeResult
 import json
 
 # Set up logging
@@ -160,26 +157,6 @@ def send_email(matches: List[Dict[str, Any]]) -> None:
         logging.info("Email sent successfully")
     except Exception as e:
         logging.error(f"Failed to send email: {str(e)}")
-
-def create_lock_file() -> None:
-    try:
-        with open('dou_lock.txt', 'w') as f:
-            f.write(datetime.now().strftime('%Y-%m-%d'))
-        logging.info("Lock file created successfully")
-    except Exception as e:
-        logging.error(f"Error creating lock file: {str(e)}")
-        raise
-
-def check_lock_file() -> bool:
-    try:
-        with open('dou_lock.txt', 'r') as f:
-            last_run = f.read().strip()
-            return last_run == datetime.now().strftime('%Y-%m-%d')
-    except FileNotFoundError:
-        return False
-    except Exception as e:
-        logging.error(f"Error checking lock file: {str(e)}")
-        return False
 
 def init_db():
     """Initialize the database with required tables"""

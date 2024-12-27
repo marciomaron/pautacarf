@@ -38,6 +38,7 @@ jobs:
         SENDER_EMAIL: ${{ secrets.SENDER_EMAIL }}
         EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
         RECIPIENT_EMAIL: "marcio.maron@advds.com.br"
+        PYTHONUNBUFFERED: 1
       run: |
         python dou_scraper.py
         
